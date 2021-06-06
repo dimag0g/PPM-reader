@@ -1,5 +1,6 @@
 /*
 Copyright 2016 Aapo Nikkilä
+Copyright 2021 Dmitry Grigoryev
 
 This file is part of PPM Reader.
 
@@ -19,22 +20,18 @@ along with PPM Reader.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PPMReader.h"
 
-PPMReader::PPMReader(byte interruptPin, byte channelAmount) {
-    // Check for valid parameters
-    if (interruptPin > 0 && channelAmount > 0) {
-        // Setup an array for storing channel values
-        this->channelAmount = channelAmount;
-        rawValues = new unsigned long[channelAmount];
-        validValues = new unsigned long[channelAmount];
-        for (int i = 0; i < channelAmount; ++i) {
-            rawValues[i] = 0;
-            validValues[i] = 0;
-        }
-        // Attach an interrupt to the pin
-        this->interruptPin = interruptPin;
-        pinMode(interruptPin, INPUT);
-        attachInterrupt(digitalPinToInterrupt(interruptPin), RISING);
+PPMReader::PPMReader(byte interruptPin, byte channelAmount):
+    interruptPin(interruptPin), channelAmount(channelAmount) {
+    // Setup an array for storing channel values
+    rawValues = new unsigned [channelAmount];
+    validValues = new unsigned [channelAmount];
+    for (int i = 0; i < channelAmount; ++i) {
+        rawValues[i] = 0;
+        validValues[i] = 0;
     }
+    // Attach an interrupt to the pin
+    pinMode(interruptPin, INPUT);
+    attachInterrupt(digitalPinToInterrupt(interruptPin), RISING);
 }
 
 PPMReader::~PPMReader() {
@@ -66,9 +63,9 @@ void PPMReader::handleInterrupt(int8_t interruptNum) {
     }
 }
 
-unsigned long PPMReader::rawChannelValue(byte channel) {
+unsigned PPMReader::rawChannelValue(byte channel) {
     // Check for channel's validity and return the latest raw channel value or 0
-    unsigned long value = 0;
+    unsigned value = 0;
     if (channel >= 1 && channel <= channelAmount) {
         noInterrupts();
         value = rawValues[channel-1];
@@ -77,9 +74,9 @@ unsigned long PPMReader::rawChannelValue(byte channel) {
     return value;
 }
 
-unsigned long PPMReader::latestValidChannelValue(byte channel, unsigned long defaultValue) {
+unsigned PPMReader::latestValidChannelValue(byte channel, unsigned defaultValue) {
     // Check for channel's validity and return the latest valid channel value or defaultValue.
-    unsigned long value = defaultValue;
+    unsigned value = defaultValue;
     if (channel >= 1 && channel <= channelAmount) {
         noInterrupts();
         value = validValues[channel-1];

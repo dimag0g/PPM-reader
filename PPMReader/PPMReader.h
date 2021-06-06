@@ -1,5 +1,6 @@
 /*
 Copyright 2016 Aapo Nikkilä
+Copyright 2021 Dmitry Grigoryev
 
 This file is part of PPM Reader.
 
@@ -29,17 +30,17 @@ class PPMReader : InterruptHandler {
     public:
     
     // The range of a channel's possible values
-    unsigned long minChannelValue = 1000;
-    unsigned long maxChannelValue = 2000;
+    unsigned minChannelValue = 1000;
+    unsigned maxChannelValue = 2000;
 
     /* The maximum error (in either direction) in channel value
      * with which the channel value is still considered valid */
-    unsigned long channelValueMaxError = 10;
+    unsigned channelValueMaxError = 10;
 
     /* The minimum value (time) after which the signal frame is considered to
      * be finished and we can start to expect a new signal frame. */
-    unsigned long blankTime = 2100;
-
+    unsigned blankTime = 2100;
+	
 
     private:
 
@@ -50,8 +51,8 @@ class PPMReader : InterruptHandler {
     byte channelAmount = 0;
 
     // Arrays for keeping track of channel values
-    volatile unsigned long *rawValues = NULL;
-    volatile unsigned long *validValues = NULL;
+    volatile unsigned *rawValues = NULL;
+    volatile unsigned *validValues = NULL;
 
     // A counter variable for determining which channel is being read next
     volatile byte pulseCounter = 0;
@@ -67,11 +68,11 @@ class PPMReader : InterruptHandler {
 
     /* Returns the latest raw (not necessarily valid) value for the
      * channel (starting from 1). */
-    unsigned long rawChannelValue(byte channel);
+    unsigned rawChannelValue(byte channel);
 
     /* Returns the latest received value that was considered valid for the channel (starting from 1).
      * Returns defaultValue if the given channel hasn't received any valid values yet. */
-    unsigned long latestValidChannelValue(byte channel, unsigned long defaultValue);
+    unsigned latestValidChannelValue(byte channel, unsigned defaultValue);
 
     private:
 

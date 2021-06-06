@@ -14,7 +14,7 @@ This version is a fork of https://github.com/Nikkilae/PPM-reader/ with the follo
 ## Usage
 
 ### Installation
-Download the contents of this repository on your computer. Move the downloaded PPMReader directory in your Arduino library directory.
+Download the contents of this repository on your computer. Move everything in the PPM-reader directory in your Arduino library directory.
 
 ### Arduino setup and code
 

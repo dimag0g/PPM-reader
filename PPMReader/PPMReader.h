@@ -22,10 +22,8 @@ along with PPM Reader.  If not, see <http://www.gnu.org/licenses/>.
 #define PPM_READER
 
 #include <Arduino.h>
-#include <InterruptHandler.h>
 
-
-class PPMReader : InterruptHandler {
+class PPMReader {
 
     public:
     
@@ -62,6 +60,8 @@ class PPMReader : InterruptHandler {
     // A time variable to remember when the last pulse was read
     volatile unsigned long microsAtLastPulse = 0;
 
+    // Pointer to PPMReader object used by ISR. Replace by an array if multiple PPM reader instances are needed
+    static PPMReader *ppm;
 
     public:
 
@@ -79,7 +79,10 @@ class PPMReader : InterruptHandler {
     private:
 
     // An interrupt service routine for handling the interrupts activated by PPM pulses
-    virtual void handleInterrupt(int8_t interruptNum);
+    void handleInterrupt(void);
+
+    // Interrupt service routine function compatible with attachInterrupt. Add more funcitons if multiple PPM reader instances are needed
+    static void PPM_ISR(void);
 
 };
 

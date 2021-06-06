@@ -20,6 +20,13 @@ along with PPM Reader.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PPMReader.h"
 
+static PPMReader *PPMReader::ppm;
+
+static void PPMReader::PPM_ISR(void) {
+  ppm->handleInterrupt(); 
+}
+
+
 PPMReader::PPMReader(byte interruptPin, byte channelAmount):
     interruptPin(interruptPin), channelAmount(channelAmount) {
     // Setup an array for storing channel values
@@ -31,16 +38,20 @@ PPMReader::PPMReader(byte interruptPin, byte channelAmount):
     }
     // Attach an interrupt to the pin
     pinMode(interruptPin, INPUT);
-    attachInterrupt(digitalPinToInterrupt(interruptPin), RISING);
+    if(ppm == NULL) {
+        ppm = this;
+        attachInterrupt(digitalPinToInterrupt(interruptPin), PPM_ISR, RISING);
+    }
 }
 
 PPMReader::~PPMReader(void) {
     detachInterrupt(digitalPinToInterrupt(interruptPin));
+    if(ppm == this) ppm = NULL;
     delete [] rawValues;
     delete [] validValues;
 }
 
-void PPMReader::handleInterrupt(int8_t interruptNum) {
+void PPMReader::handleInterrupt(void) {
     // Remember the current micros() and calculate the time since the last pulseReceived()
     unsigned long previousMicros = microsAtLastPulse;
     microsAtLastPulse = micros();

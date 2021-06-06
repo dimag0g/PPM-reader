@@ -41,6 +41,8 @@ class PPMReader : InterruptHandler {
      * be finished and we can start to expect a new signal frame. */
     unsigned blankTime = 2100;
 	
+	unsigned long failsafeTimeout = 500000L;
+
 
     private:
 
@@ -64,7 +66,7 @@ class PPMReader : InterruptHandler {
     public:
 
     PPMReader(byte interruptPin, byte channelAmount);
-    ~PPMReader();
+    ~PPMReader(void);
 
     /* Returns the latest raw (not necessarily valid) value for the
      * channel (starting from 1). */

@@ -34,7 +34,7 @@ PPMReader::PPMReader(byte interruptPin, byte channelAmount):
     attachInterrupt(digitalPinToInterrupt(interruptPin), RISING);
 }
 
-PPMReader::~PPMReader() {
+PPMReader::~PPMReader(void) {
     detachInterrupt(digitalPinToInterrupt(interruptPin));
     delete [] rawValues;
     delete [] validValues;
@@ -76,11 +76,13 @@ unsigned PPMReader::rawChannelValue(byte channel) {
 
 unsigned PPMReader::latestValidChannelValue(byte channel, unsigned defaultValue) {
     // Check for channel's validity and return the latest valid channel value or defaultValue.
-    unsigned value = defaultValue;
+    unsigned value;
+    if(micros() - microsAtLastPulse > failsafeTimeout) return defaultValue;
     if (channel >= 1 && channel <= channelAmount) {
         noInterrupts();
         value = validValues[channel-1];
         interrupts();
+        if(value < minChannelValue) return defaultValue; // value cannot exceed maxChannelValue by design
     }
     return value;
 }

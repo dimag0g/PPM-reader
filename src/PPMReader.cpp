@@ -20,9 +20,9 @@ along with PPM Reader.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PPMReader.h"
 
-static PPMReader *PPMReader::ppm;
+PPMReader *PPMReader::ppm;
 
-static void PPMReader::PPM_ISR(void) {
+void PPMReader::PPM_ISR(void) {
   ppm->handleInterrupt(); 
 }
 
@@ -88,7 +88,11 @@ unsigned PPMReader::rawChannelValue(byte channel) {
 unsigned PPMReader::latestValidChannelValue(byte channel, unsigned defaultValue) {
     // Check for channel's validity and return the latest valid channel value or defaultValue.
     unsigned value;
-    if(micros() - microsAtLastPulse > failsafeTimeout) return defaultValue;
+	unsigned long time = micros();
+	noInterrupts();
+	time -= microsAtLastPulse;
+	interrupts();
+    if(time > failsafeTimeout) return defaultValue;
     if (channel >= 1 && channel <= channelAmount) {
         noInterrupts();
         value = validValues[channel-1];

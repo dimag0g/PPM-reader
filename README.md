@@ -2,6 +2,14 @@
 
 PPM Reader is an interrupt based [pulse-position modulation](https://en.wikipedia.org/wiki/Pulse-position_modulation) (PPM) signal reading library for Arduino. Its purpose is to provide an easy to use, non-blocking solution for reading PPM signals from an RC receiver that is able to output channel data as PPM.
 
+A PPM signal which PPM Reader is able to decode is shown below:
+
+<p align="center">
+    <img src="PPM-signal.png?raw=true" width="800">
+</p>
+
+The signal consists of pulses which delimit time intervals measured in microseconds. Smaller intervals correspond to individual channels inside the frame, and a larger interval (blank time) delimits individual frames.
+
 Using interrupts (instead of pulseIn or some equivalent) to detect pulses means that reading the signal can be done in a non-blocking way. This means that using PPM Reader doesn't significantly slow down your program's code and you can do any other timing sensitive processes in your program meanwhile reading the incoming PPM signals.
 
 This version is a fork of https://github.com/Nikkilae/PPM-reader/ with the following modifications:

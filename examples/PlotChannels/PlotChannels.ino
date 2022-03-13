@@ -19,8 +19,8 @@ void loop() {
     for (byte channel = 1; channel <= channelAmount; ++channel) {
         unsigned value = ppm.latestValidChannelValue(channel, 0);
         Serial.print(value);
-		if(channel < channelAmount) Serial.print('\t');
+        if(channel < channelAmount) Serial.print('\t');
     }
     Serial.println();
-	delay(20);
+    delay(20);
 }

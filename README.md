@@ -8,21 +8,25 @@ A PPM signal which PPM Reader is able to decode is shown below:
     <img src="PPM-signal.png?raw=true" width="800">
 </p>
 
-The signal consists of pulses which delimit time intervals measured in microseconds. Smaller intervals correspond to individual channels inside the frame, and a larger interval (blank time) delimits individual frames.
+The signal consists of pulses of fixed length (300-500 microseconds) which delimit time intervals. Smaller intervals correspond to individual channel values (in microseconds) inside the frame, and a larger interval (blank time) delimits individual frames.
+
+The number of channels in a frame is supposed to be constant, however, the library will accept frames with a variable number of channels:
+
+- if fewer channels are transmitted, non-transmitted channels will keep their old values
+- if more channels are transmitted than the library was configured to accept, extra channels will be discarded
+
+Since the PPM reader works with pulse edges, it should be able to accept signals of either polarity.
 
 Using interrupts (instead of pulseIn or some equivalent) to detect pulses means that reading the signal can be done in a non-blocking way. This means that using PPM Reader doesn't significantly slow down your program's code and you can do any other timing sensitive processes in your program meanwhile reading the incoming PPM signals.
 
-This version is a fork of https://github.com/Nikkilae/PPM-reader/ with the following modifications:
-
-- the dependency on InterruptHandler library (limited to AVR architecture) has been removed, so PPM Reader should be compatible with non-AVR boards such as ESP32. On the downside, only a single PPMReader object can receive interrupts (the library could be extended to support several objects).
-- variables are reduced to 16 bit where possible, saving some RAM. Most radios have PPM signals and timeouts in the range of 500-5000 microseconds, so values exceeding 65000 are essentially non-existent in practice.
-- `latestValidChannelValue()` no longer returns zero if no PPM frame is ever received (it returns `defaultValue` instead). Returning zero is considered a bug because the valid value is supposed to be in the min/max range.
-- added a new parameter, `failsafeTimeout`, which makes `latestValidChannelValue()` return `defaultValue` if no PPM signal is detected for a certain time (0.5s by default). Note that this doesn't help with radios which keep sending data over PPM even if the RF signal is lost.
+This version is a fork of https://github.com/Nikkilae/PPM-reader/ with modifications.
 
 ## Usage
 
 ### Installation
-Download the contents of this repository on your computer. Move everything in the PPM-reader directory in your Arduino library directory.
+If you use Arduino IDE, you should install PPM reader via the built-in library manager.
+
+If you prefer to install it manually, download the release zip file and place the files in the Arduino library directory, e.g. `Documents\Arduino\libraries\PPM-reader`.
 
 ### Arduino setup and code
 
@@ -57,6 +61,7 @@ void loop() {
         Serial.print(String(value) + "\t");
     }
     Serial.println();
+    delay(20);
 }
 
 ```
@@ -76,5 +81,7 @@ The library has been tested and proven to work on the following setup:
 * An Arduino Nano board
 * FlySky FS-i6X transmitter with the FS-iA8S receiver
 * Up to 8 channels
+
+If you don't have any RC equipment, you should be able to produce a test PPM signal using [PPMEncoder](https://github.com/schinken/PPMEncoder).
 
 Please mention any issues, bugs or improvement ideas.

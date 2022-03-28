@@ -52,7 +52,6 @@ class PPMReader {
 
     // Arrays for keeping track of channel values
     volatile unsigned *rawValues = NULL;
-    volatile unsigned *validValues = NULL;
 
     // A counter variable for determining which channel is being read next
     volatile byte pulseCounter = 0;

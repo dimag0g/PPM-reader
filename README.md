@@ -1,23 +1,23 @@
 # PPM Reader for Arduino
 
-PPM Reader is an interrupt based [pulse-position modulation](https://en.wikipedia.org/wiki/Pulse-position_modulation) (PPM) signal reading library for Arduino. Its purpose is to provide an easy to use, non-blocking solution for reading PPM signals from an RC receiver that is able to output channel data as PPM.
+PPM Reader is an interrupt based [pulse-position modulation](https://en.wikipedia.org/wiki/Pulse-position_modulation) (PPM) signal reading library for Arduino. Its purpose is to provide an easy to use, non-blocking solution for decoding the signal from an RC receiver that is able to encode data from multiple channels as PPM.
 
-A PPM signal which PPM Reader is able to decode is shown below:
+A typical PPM signal which PPM Reader is able to decode is shown below:
 
 <p align="center">
     <img src="PPM-signal.png?raw=true" width="800">
 </p>
 
-The signal consists of pulses of fixed length (300-500 microseconds) which delimit time intervals. Smaller intervals correspond to individual channel values (in microseconds) inside the frame, and a larger interval (blank time) delimits individual frames.
+The signal consists of pulses (usually 300-500 microseconds) which delimit time intervals. Smaller intervals correspond to individual channel values (in microseconds) inside the frame, and a larger interval (blank time) delimits separate frames.
 
 The number of channels in a frame is supposed to be constant, however, the library will accept frames with a variable number of channels:
 
 - if fewer channels are transmitted, non-transmitted channels will keep their old values
 - if more channels are transmitted than the library was configured to accept, extra channels will be discarded
 
-Since the PPM reader works with pulse edges, it should be able to accept signals of either polarity.
+Since the PPM reader works with pulse edges, it should be able to accept signals of either polarity, provided that the pulses have constant width. Alternatively, the input signal can have varying pulse widths, but then the pulse positions will be determined by the **rising** edges. The resolution of the channel values is the same as the resolution of `micros()`.
 
-Using interrupts (instead of pulseIn or some equivalent) to detect pulses means that reading the signal can be done in a non-blocking way. This means that using PPM Reader doesn't significantly slow down your program's code and you can do any other timing sensitive processes in your program meanwhile reading the incoming PPM signals.
+Using interrupts (instead of `pulseIn()` or some equivalent) for measurement means that decoding the signal happens in a non-blocking way. Using PPM Reader doesn't significantly slow down your program's code and you can do any other timing sensitive processes in your program meanwhile reading the incoming PPM signals.
 
 This version is a fork of https://github.com/Nikkilae/PPM-reader/ with modifications.
 

@@ -31,10 +31,8 @@ PPMReader::PPMReader(byte interruptPin, byte channelAmount):
     interruptPin(interruptPin), channelAmount(channelAmount) {
     // Setup an array for storing channel values
     rawValues = new unsigned [channelAmount];
-    validValues = new unsigned [channelAmount];
     for (int i = 0; i < channelAmount; ++i) {
         rawValues[i] = 0;
-        validValues[i] = 0;
     }
     // Attach an interrupt to the pin
     pinMode(interruptPin, INPUT);
@@ -48,7 +46,6 @@ PPMReader::~PPMReader(void) {
     detachInterrupt(digitalPinToInterrupt(interruptPin));
     if(ppm == this) ppm = NULL;
     delete [] rawValues;
-    delete [] validValues;
 }
 
 void PPMReader::handleInterrupt(void) {
@@ -58,19 +55,15 @@ void PPMReader::handleInterrupt(void) {
     unsigned long time = microsAtLastPulse - previousMicros;
 
     if (time > blankTime) {
-        /* If the time between pulses was long enough to be considered an end
-         * of a signal frame, prepare to read channel values from the next pulses */
+        // Blank detected: restart from channel 1 
         pulseCounter = 0;
     }
     else {
         // Store times between pulses as channel values
         if (pulseCounter < channelAmount) {
             rawValues[pulseCounter] = time;
-            if (time >= minChannelValue - channelValueMaxError && time <= maxChannelValue + channelValueMaxError) {
-                validValues[pulseCounter] = constrain(time, minChannelValue, maxChannelValue);
-            }
+            ++pulseCounter;
         }
-        ++pulseCounter;
     }
 }
 
@@ -87,17 +80,19 @@ unsigned PPMReader::rawChannelValue(byte channel) {
 
 unsigned PPMReader::latestValidChannelValue(byte channel, unsigned defaultValue) {
     // Check for channel's validity and return the latest valid channel value or defaultValue.
-    unsigned value;
-	unsigned long time = micros();
+    unsigned value = defaultValue;
+	unsigned long timeout;
 	noInterrupts();
-	time -= microsAtLastPulse;
+	timeout = micros() - microsAtLastPulse;
 	interrupts();
-    if(time > failsafeTimeout) return defaultValue;
-    if (channel >= 1 && channel <= channelAmount) {
+    if ((timeout < failsafeTimeout) && (channel >= 1) && (channel <= channelAmount)) {
         noInterrupts();
-        value = validValues[channel-1];
-        interrupts();
-        if(value < minChannelValue) return defaultValue; // value cannot exceed maxChannelValue by design
+        value = rawValues[channel-1];
+		interrupts();
+		if (value >= minChannelValue - channelValueMaxError && value <= maxChannelValue + channelValueMaxError) {
+			value = constrain(value, minChannelValue, maxChannelValue);
+		}
+        else value = defaultValue;
     }
     return value;
 }

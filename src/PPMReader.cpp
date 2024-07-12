@@ -92,7 +92,7 @@ unsigned PPMReader::rawChannelValue(byte channel) {
 
 unsigned PPMReader::percentageChannelValue(byte channel){
     unsigned raw = rawChannelValue(channel);
-    return raw < minChannelValue ? 0 : ((signed)raw - minChannelValue)/10;
+    return map(raw, minChannelValue, maxChannelValue, 0, 100);
 }
 
 

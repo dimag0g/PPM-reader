@@ -60,12 +60,14 @@ class PPMReader {
     volatile unsigned long microsAtLastPulse = 0;
 
     // Pointer to PPMReader object used by ISR. Replace by an array if multiple PPM reader instances are needed
-    static PPMReader *ppm;
 
     public:
+    static PPMReader *ppm;
 
     PPMReader(byte interruptPin, byte channelAmount);
     ~PPMReader(void);
+
+    void begin();
 
     // Returns the latest raw (not necessarily valid) value for the channel (starting from 1)
     unsigned rawChannelValue(byte channel);
@@ -74,13 +76,13 @@ class PPMReader {
     // Returns defaultValue if the channel hasn't received any valid values yet, or the PPM signal was absent for more than failsafeTimeout
     unsigned latestValidChannelValue(byte channel, unsigned defaultValue);
 
+    static void PPM_ISR(void);
     private:
 
     // An interrupt service routine for handling the interrupts activated by PPM pulses
     void handleInterrupt(void);
 
     // Interrupt service routine function compatible with attachInterrupt. Add more funcitons if multiple PPM reader instances are needed
-    static void PPM_ISR(void);
 
 };
 

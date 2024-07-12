@@ -36,16 +36,20 @@ PPMReader::PPMReader(byte interruptPin, byte channelAmount):
     }
     // Attach an interrupt to the pin
     pinMode(interruptPin, INPUT);
-    if(ppm == NULL) {
-        ppm = this;
-        attachInterrupt(digitalPinToInterrupt(interruptPin), PPM_ISR, RISING);
-    }
 }
 
 PPMReader::~PPMReader(void) {
     detachInterrupt(digitalPinToInterrupt(interruptPin));
     if(ppm == this) ppm = NULL;
     delete [] rawValues;
+}
+
+void PPMReader::begin()
+{
+    if(ppm == NULL) {
+        ppm = this;
+        attachInterrupt(digitalPinToInterrupt(interruptPin), PPM_ISR, RISING);
+    }
 }
 
 void PPMReader::handleInterrupt(void) {

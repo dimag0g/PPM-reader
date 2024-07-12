@@ -52,6 +52,8 @@ PPMReader ppm(interruptPin, channelAmount);
 
 void setup() {
     Serial.begin(115200);
+    // Add the following line if you are using an ESP32 board :
+    // ppm.begin();
 }
 
 void loop() {

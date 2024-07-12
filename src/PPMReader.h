@@ -66,8 +66,6 @@ class PPMReader {
     PPMReader(byte interruptPin, byte channelAmount);
     ~PPMReader(void);
 
-    void begin();
-
     // Returns the latest raw (not necessarily valid) value for the channel (starting from 1)
     unsigned rawChannelValue(byte channel);
 
@@ -83,6 +81,7 @@ class PPMReader {
     public:
     static PPMReader *ppm;
     static void PPM_ISR(void);
+    void begin();
 #else
     private:
     static PPMReader *ppm;

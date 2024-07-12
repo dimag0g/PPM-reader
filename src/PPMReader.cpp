@@ -82,6 +82,12 @@ unsigned PPMReader::rawChannelValue(byte channel) {
     return value;
 }
 
+unsigned PPMReader::percentageChannelValue(byte channel){
+    unsigned raw = rawChannelValue(channel);
+    return raw < minChannelValue ? 0 : ((signed)raw - minChannelValue)/10;
+}
+
+
 unsigned PPMReader::latestValidChannelValue(byte channel, unsigned defaultValue) {
     // Check for channel's validity and return the latest valid channel value or defaultValue.
     unsigned value = defaultValue;

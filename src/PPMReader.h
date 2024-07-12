@@ -72,6 +72,8 @@ class PPMReader {
     // Returns the latest raw (not necessarily valid) value for the channel (starting from 1)
     unsigned rawChannelValue(byte channel);
 
+    unsigned percentageChannelValue(byte channel);
+
     // Returns the latest received value that was considered valid for the channel (starting from 1)
     // Returns defaultValue if the channel hasn't received any valid values yet, or the PPM signal was absent for more than failsafeTimeout
     unsigned latestValidChannelValue(byte channel, unsigned defaultValue);

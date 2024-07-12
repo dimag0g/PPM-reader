@@ -36,6 +36,12 @@ PPMReader::PPMReader(byte interruptPin, byte channelAmount):
     }
     // Attach an interrupt to the pin
     pinMode(interruptPin, INPUT);
+    #if !defined(ESP32)
+    if(ppm == NULL) {
+        ppm = this;
+        attachInterrupt(digitalPinToInterrupt(interruptPin), PPM_ISR, RISING);
+    }
+    #endif
 }
 
 PPMReader::~PPMReader(void) {
@@ -44,6 +50,7 @@ PPMReader::~PPMReader(void) {
     delete [] rawValues;
 }
 
+#if defined(ESP32)
 void PPMReader::begin()
 {
     if(ppm == NULL) {
@@ -51,6 +58,7 @@ void PPMReader::begin()
         attachInterrupt(digitalPinToInterrupt(interruptPin), PPM_ISR, RISING);
     }
 }
+#endif 
 
 void PPMReader::handleInterrupt(void) {
     // Remember the current micros() and calculate the time since the last pulseReceived()

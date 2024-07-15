@@ -20,6 +20,7 @@ along with PPM Reader.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PPMReader.h"
 
+#define ABS(X) (X < 0? -X : X)
 PPMReader *PPMReader::ppm;
 
 void PPMReader::PPM_ISR(void) {
@@ -64,7 +65,7 @@ void PPMReader::handleInterrupt(void) {
     // Remember the current micros() and calculate the time since the last pulseReceived()
     unsigned long previousMicros = microsAtLastPulse;
     microsAtLastPulse = micros();
-    unsigned long time = microsAtLastPulse - previousMicros;
+    unsigned long time = ABS((unsigned)microsAtLastPulse - (unsigned)previousMicros);
 
     if (time > blankTime) {
         // Blank detected: restart from channel 1 
@@ -92,7 +93,34 @@ unsigned PPMReader::rawChannelValue(byte channel) {
 
 unsigned PPMReader::percentageChannelValue(byte channel){
     unsigned raw = rawChannelValue(channel);
-    return map(raw, minChannelValue, maxChannelValue, 0, 100);
+    
+    if(raw >= minChannelValue && raw <= maxChannelValue)
+    {
+        return map(raw, minChannelValue, maxChannelValue, 0, 100);
+    }
+    else if (raw < minChannelValue)
+    {
+        return 0;
+    } else
+    {
+        return 100;
+    }
+}
+
+unsigned PPMReader::latestValidPercentage(byte channel, unsigned defaultValue){
+    unsigned raw = latestValidPercentage(channel, defaultValue);
+    
+    if(raw >= minChannelValue && raw <= maxChannelValue)
+    {
+        return map(raw, minChannelValue, maxChannelValue, 0, 100);
+    }
+    else if (raw < minChannelValue)
+    {
+        return 0;
+    } else
+    {
+        return 100;
+    }
 }
 
 

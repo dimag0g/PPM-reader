@@ -20,6 +20,7 @@ along with PPM Reader.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PPMReader.h"
 
+#define ABS(X) (X < 0? -X : X)
 PPMReader *PPMReader::ppm;
 
 void PPMReader::PPM_ISR(void) {
@@ -36,10 +37,12 @@ PPMReader::PPMReader(byte interruptPin, byte channelAmount):
     }
     // Attach an interrupt to the pin
     pinMode(interruptPin, INPUT);
+    #if !defined(ESP32)
     if(ppm == NULL) {
         ppm = this;
         attachInterrupt(digitalPinToInterrupt(interruptPin), PPM_ISR, RISING);
     }
+    #endif
 }
 
 PPMReader::~PPMReader(void) {
@@ -48,11 +51,21 @@ PPMReader::~PPMReader(void) {
     delete [] rawValues;
 }
 
+#if defined(ESP32)
+void PPMReader::begin()
+{
+    if(ppm == NULL) {
+        ppm = this;
+        attachInterrupt(digitalPinToInterrupt(interruptPin), PPM_ISR, RISING);
+    }
+}
+#endif 
+
 void PPMReader::handleInterrupt(void) {
     // Remember the current micros() and calculate the time since the last pulseReceived()
     unsigned long previousMicros = microsAtLastPulse;
     microsAtLastPulse = micros();
-    unsigned long time = microsAtLastPulse - previousMicros;
+    unsigned long time = ABS((unsigned)microsAtLastPulse - (unsigned)previousMicros);
 
     if (time > blankTime) {
         // Blank detected: restart from channel 1 
@@ -77,6 +90,39 @@ unsigned PPMReader::rawChannelValue(byte channel) {
     }
     return value;
 }
+
+unsigned PPMReader::percentageChannelValue(byte channel){
+    unsigned raw = rawChannelValue(channel);
+    
+    if(raw >= minChannelValue && raw <= maxChannelValue)
+    {
+        return map(raw, minChannelValue, maxChannelValue, 0, 100);
+    }
+    else if (raw < minChannelValue)
+    {
+        return 0;
+    } else
+    {
+        return 100;
+    }
+}
+
+unsigned PPMReader::latestValidPercentage(byte channel, unsigned defaultValue){
+    unsigned raw = latestValidPercentage(channel, defaultValue);
+    
+    if(raw >= minChannelValue && raw <= maxChannelValue)
+    {
+        return map(raw, minChannelValue, maxChannelValue, 0, 100);
+    }
+    else if (raw < minChannelValue)
+    {
+        return 0;
+    } else
+    {
+        return 100;
+    }
+}
+
 
 unsigned PPMReader::latestValidChannelValue(byte channel, unsigned defaultValue) {
     // Check for channel's validity and return the latest valid channel value or defaultValue.

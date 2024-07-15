@@ -1,4 +1,6 @@
 /*
+This example is compatible with AVR boards.
+
 This example outputs values from all PPM channels to Serial
 in a format compatible with Arduino IDE Serial Plotter
 */
